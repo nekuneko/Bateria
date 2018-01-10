@@ -1,11 +1,11 @@
 /*
     Autor: Javier Villaverde Ramallo
-    Fecha: 26/11/2015
+    Fecha: 10/01/2018
 
     Una batería de LiPo tiene un voltaje máximo que es capaz de entregar y un voltaje mínimo 
     del que no hay que bajar nunca, ya que de lo contrario se estropea la batería.
 
-    ¡CUIDADO! Si cortocircuitas una batería de este tipo puede EXPLOTAR.
+    ¡CUIDADO! Si se provoca un cortocircuito en una batería de este tipo puede EXPLOTAR.
 
     El Arduino por cualquiera de sus entradas analógicas (tomaremos por ejemplo la entrada A0), 
     es capaz de leer con la instrucción analogRead(pinBateria) valores continuos en un rango 
@@ -69,61 +69,61 @@
 #ifndef BATERIA_H
 #define BATERIA_H
 
-#include "arduino.h"    // necesario para pinMode() y analogRead()
+#include "arduino.h"    // necesario para pinMode(), analogRead() y Serial
+
+#define BATERIA_H_MAX_VOL_ANALOGICO 1023
 
 class Bateria
 {
 public:
                 // 12.56           9.9               3.823          3.015
-    Bateria (float maxVol, float minVol, float maxVolDivTen, float minVolDivTen,
-              int pinBateria = A0);
+    Bateria (float maxVol, float minVol, float maxVolDivTen, float minVolDivTen, int pinBateria = A0);
 
 // Métodos modificadores
-    void leer ();
+    void leer (); // Actualiza el valorAnalogico, porcentaje y voltaje.
 
 // Métodos observadores
-//    float voltajeMaximo () { return maxVol; }
-//    float voltajeMinimo () { return minVol; }    
-
-    float voltajeMaximo        () { return maxVol;        }
-    float voltajeMinimo        () { return minVol;        }
-    float voltajeMaximoDivTen  () { return maxVolDivTen;  }
-    float voltajeMinimoDivTen  () { return minVolDivTen;  }
-    float voltajeMaximoDigital () { return maxVolDigital; }
-    float voltajeMinimoDigital () { return minVolDigital; }
+    int   pin                  () const { return pinBateria;    }
+    float voltajeMaximo        () const { return maxVol;        }
+    float voltajeMinimo        () const { return minVol;        }
+    float voltajeMaximoDivTen  () const { return maxVolDivTen;  }
+    float voltajeMinimoDivTen  () const { return minVolDivTen;  }
+    float voltajeMaximoDigital () const { return maxVolAnalog;  }
+    float voltajeMinimoDigital () const { return minVolAnalog;  }
   
-
-    float voltaje              () { return voltajeB;      }
-    int   porcentaje           () { return porcentajeC;   }
-
+    int   valorAnalogico       () { return volAnalog;   } 
+    int   porcentaje           () { return porcentajeC; }
+    float voltaje              () { return voltajeB;    }
         
-
 
     void  datos();  // Visualiza toda la información por puerto serie
 
-// Realizar el cálculo del voltaje medio fuera del código de la batería
+    // TO DO
+	// Realizar el cálculo del voltaje medio fuera del código de la batería
+	// Puede hacerse dentro por medio de la clase vector y un iterador que vaya sumando datos, definir 
+	// el valor inicial del vector y con puntero apuntar a siguiente medida, los valores antiguos se machacan.
     
 
 private:
     void leerBateria();
 
     /* Constantes */
-    const int pinBateria;       // Pin asociado a la lectura de la batería
+    const int pinBateria;       // Pin asociado a la lectura de la batería, debe ser analógico
 
-    const float maxVol;         // Voltaje máximo que da la batería cuando está cargada
-    const float minVol;         // Voltaje mínimo antes de que se estropee la batería
+    const float maxVol;         // Voltaje máximo teórico que da la batería cuando está cargada
+    const float minVol;         // Voltaje mínimo teórico antes de que se estropee la batería
 
-    const float maxVolDivTen;   // Valor constante que marca el máximo de tensión en el regulador
-    const float minVolDivTen;   // Valor que marca el mínimo de tensión en el regulador
+    const float maxVolDivTen;   // Valor constante que marca el máximo teórico de tensión en el regulador
+    const float minVolDivTen;   // Valor que marca el mínimo de tensión teórico en el regulador
    
-    const int maxVolDigital;    // Equivalente digital del voltaje máximo
-    const int minVolDigital;    // Equivalente digital del voltaje mínimo
+    const int maxVolAnalog;    // Voltaje máximo teórico leído por el convertidor A/D (Analógico/Digital)
+    const int minVolAnalog;    // Voltaje mínimo teórico leído por el convertidor A/D (Analógico/Digital)
     /* Fin Constantes */
    
 // Estado real de la batería
-    int   volDigital;        // Voltaje Digital       en la última lectura 
-    int   porcentajeC;       // Porcentaje de Carga   en la última lectura
-    float voltajeB;          // Voltaje de la Batería en la última lectura
+    int   volAnalog;         // Valor del convertidor A/D en la última lectura 
+    int   porcentajeC;       // Porcentaje de Carga       en la última lectura
+    float voltajeB;          // Voltaje de la Batería     en la última lectura
     
 };
 

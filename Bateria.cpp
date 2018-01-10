@@ -1,16 +1,13 @@
-//#include "arduino.h"
 #include "Bateria.h"
 
-Bateria::Bateria (float maxVol,        float minVol, 
-                  float maxVolDivTen,  float minVolDivTen,
-                  int pinBateria)
-: maxVol        (maxVol)      , 
-  minVol        (minVol)      , 
-  maxVolDivTen  (maxVolDivTen),
-  minVolDivTen  (minVolDivTen),
-  pinBateria    (pinBateria)  ,
-  maxVolDigital (maxVolDivTen * 1023 / 5),
-  minVolDigital (minVolDivTen * 1023 / 5)
+Bateria::Bateria (float maxVol, float minVol, float maxVolDivTen, float minVolDivTen, int pinBateria)
+: maxVol       (maxVol)      , 
+  minVol       (minVol)      , 
+  maxVolDivTen (maxVolDivTen),
+  minVolDivTen (minVolDivTen),
+  pinBateria   (pinBateria)  ,
+  maxVolAnalog (BATERIA_H_MAX_VOL_ANALOGICO),
+  minVolAnalog (minVolDivTen * BATERIA_H_MAX_VOL_ANALOGICO / maxVolDivTen)
 {
     // Asociación de la batería a un pin
     pinMode(pinBateria, INPUT);
@@ -20,62 +17,58 @@ Bateria::Bateria (float maxVol,        float minVol,
 
 void Bateria::leer ()
 {
-  volDigital = analogRead(pinBateria);
-  
-  if (minVolDigital <= volDigital && volDigital <= maxVolDigital)
+  volAnalog = analogRead(pinBateria);
+ 
+  if (volAnalog < minVolAnalog)
   {
-    porcentajeC  = map(volDigital, minVolDigital, maxVolDigital, 0, 99); //volDigital * 99 / maxVolDigital;         
-    voltajeB     = volDigital * maxVol / maxVolDigital; //map(volDigital, minVolDigital, maxVolDigital, minVol, maxVol);
+    porcentajeC  = 0;      //  0 %
+    voltajeB     = maxVol; // voltaje máximo teórico de la batería
+  }
+  else if (volAnalog > maxVolAnalog)
+  {
+    porcentajeC  = 99;     // 99 %
+    voltajeB     = minVol; // voltaje mínimo teórico de la batería
   } 
-  else if (volDigital < minVolDigital)
+  else // (minVolDigital <= volDigital && volDigital <= maxVolDigital)
   {
-    porcentajeC  = 0;            //  0 %
-    voltajeB     = volDigital * maxVol / maxVolDigital; //map(volDigital, minVolDigital, maxVolDigital, minVol, maxVol);
-
-    //voltajeB     = minVol;
-  }
-  else // (maxVolDigital < volDigital)
-  {
-    porcentajeC  = 99;          // 99 %
-    voltajeB     = volDigital * maxVol / maxVolDigital; //map(volDigital, minVolDigital, maxVolDigital, minVol, maxVol);
-
-    //voltajeB     = maxVol; 
-  }
+    porcentajeC  = map(volAnalog, minVolAnalog, maxVolAnalog, 0, 99); // no se puede hacer regla de tres, porque es un rango discreto acotado
+    voltajeB     = volAnalog * maxVol / maxVolAnalog; // no se puede usar map porque devuelve un long
+  } 
   
 }
 
 void Bateria::datos ()
 {
-  Serial.println("\n------ Bateria ------");
+  Serial.println("--- Datos de la batería ---");
 
-  Serial.print("Pin de la Bateria:  ");
+  Serial.print("Pin de la Bateria:     ");
   Serial.println(pinBateria);
 
-  Serial.print("Voltaje maximo:     ");
+  Serial.print("Voltaje maximo:        ");
   Serial.println(maxVol);
 
-  Serial.print("Voltaje minimo:     ");
+  Serial.print("Voltaje minimo:        ");
   Serial.println(minVol);
 
-  Serial.print("Voltaje maximo DT:  ");
+  Serial.print("Voltaje maximo DT:     ");
   Serial.println(maxVolDivTen);
 
-  Serial.print("Voltaje minimo DT:  ");
+  Serial.print("Voltaje minimo DT:     ");
   Serial.println(minVolDivTen);
 
-  Serial.print("Voltaje maximo Dig: ");
-  Serial.println(maxVolDigital);
+  Serial.print("Voltaje maximo Analog: ");
+  Serial.println(maxVolAnalog);
 
-  Serial.print("Voltaje minimo Dig: ");
-  Serial.println(minVolDigital);
+  Serial.print("Ultimo Voltaje Analog: ");
+  Serial.println(volAnalog);
 
-  Serial.print("Ultimo Voltaje Dig: ");
-  Serial.println(volDigital);
+  Serial.print("Voltaje minimo Analog: ");
+  Serial.println(minVolAnalog);
 
-  Serial.print("Voltaje:    ");
+  Serial.print("Voltaje actual:        ");
   Serial.println(voltajeB);
 
-  Serial.print("Porcentaje: ");
+  Serial.print("Porcentaje:            ");
   Serial.println(porcentajeC);
 
   Serial.println("---------------------\n");
