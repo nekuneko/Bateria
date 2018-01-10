@@ -4,7 +4,8 @@
 
    ¡CUIDADO! Si se provoca un cortocircuito en una batería de este tipo puede EXPLOTAR.
 	
-	    Una batería de LiPo tiene un voltaje máximo que es capaz de entregar y un voltaje mínimo del que no hay que bajar nunca, ya que de lo contrario se estropea la batería.
+	    Una batería de LiPo tiene un voltaje máximo que es capaz de entregar y un voltaje mínimo del 
+	    que no hay que bajar nunca, ya que de lo contrario se estropea la batería.
 	
 	    El Arduino por cualquiera de sus entradas analógicas (tomaremos por ejemplo la entrada A0), 
 	    es capaz de leer con la instrucción analogRead(pinBateria) valores continuos en un rango 
