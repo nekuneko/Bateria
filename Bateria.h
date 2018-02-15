@@ -69,9 +69,11 @@
 #ifndef BATERIA_H
 #define BATERIA_H
 
-#include "arduino.h"    // necesario para pinMode(), analogRead() y Serial
+#include <Arduino.h>    // necesario para pinMode(), analogRead() y Serial
 
+#ifndef BATERIA_H_MAX_VOL_ANALOGICO
 #define BATERIA_H_MAX_VOL_ANALOGICO 1023
+#endif
 
 class Bateria
 {
